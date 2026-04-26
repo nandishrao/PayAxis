@@ -1,0 +1,401 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OrganisationType {
+  AGENCY
+  UMBRELLA
+}
+
+enum UserRole {
+  PLATFORM_ADMIN
+  AGENCY_ADMIN
+  AGENCY_CONSULTANT
+  UMBRELLA_ADMIN
+  PAYROLL_OPERATOR
+  CONTRACTOR
+}
+
+enum WorkRecordState {
+  WORK_SUBMITTED
+  WORK_APPROVED
+  WORK_REJECTED
+  INVOICE_GENERATED
+  INVOICE_APPROVED
+  PAYMENT_PENDING
+  PAYMENT_RECEIVED
+  PAYROLL_PROCESSING
+  PAYROLL_COMPLETED
+  COMPLIANCE_SUBMITTED
+  COMPLETED
+}
+
+enum TimesheetStatus {
+  DRAFT
+  WORK_SUBMITTED
+  WORK_APPROVED
+  WORK_REJECTED
+}
+
+enum InvoiceStatus {
+  INVOICE_GENERATED
+  INVOICE_APPROVED
+  PAYMENT_PENDING
+  PAYMENT_RECEIVED
+}
+
+enum PaymentMatchStatus {
+  MATCHED
+  MISMATCHED
+  UNRECOGNISED
+}
+
+enum PayrollStatus {
+  PAYROLL_PROCESSING
+  PAYROLL_COMPLETED
+  FAILED
+}
+
+enum ExceptionStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+  ESCALATED
+}
+
+enum ExceptionType {
+  PAYMENT_MISMATCH
+  INVALID_TAX_CODE
+  MISSING_NI_NUMBER
+  PAYROLL_OUT_OF_RANGE
+  HMRC_SUBMISSION_FAILED
+  UNRECOGNISED_PAYMENT
+  MANUAL_OVERRIDE
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum RtiSubmissionStatus {
+  PENDING
+  SUBMITTED
+  ACCEPTED
+  FAILED
+}
+
+model Organisation {
+  id        String           @id @default(uuid())
+  name      String
+  type      OrganisationType
+  isActive  Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  deletedAt DateTime?
+
+  memberships   Membership[]
+  agencyLinks   ContractorLink[] @relation("AgencyLinks")
+  umbrellaLinks ContractorLink[] @relation("UmbrellaLinks")
+
+  @@map("organisations")
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  firstName    String
+  lastName     String
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+
+  memberships     Membership[]
+  contractorLinks ContractorLink[] @relation("ContractorLinks")
+  auditLogs       AuditLog[]
+  timesheets      Timesheet[]
+  payslips        Payslip[]
+  notifications   Notification[]
+  exceptions      Exception[]      @relation("ExceptionAssignee")
+
+  @@map("users")
+}
+
+model Membership {
+  id             String   @id @default(uuid())
+  userId         String
+  organisationId String?
+  role           UserRole
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id])
+  organisation Organisation? @relation(fields: [organisationId], references: [id])
+
+  @@unique([userId, organisationId])
+  @@map("memberships")
+}
+
+model ContractorLink {
+  id                String   @id @default(uuid())
+  contractorId      String
+  agencyId          String
+  umbrellaId        String
+  agreedRatePerHour Decimal  @db.Decimal(10, 2)
+  currency          String   @default("GBP")
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  contractor User         @relation("ContractorLinks", fields: [contractorId], references: [id])
+  agency     Organisation @relation("AgencyLinks",     fields: [agencyId],     references: [id])
+  umbrella   Organisation @relation("UmbrellaLinks",   fields: [umbrellaId],   references: [id])
+
+  timesheets Timesheet[]
+  invoices   Invoice[]
+
+  @@unique([contractorId, agencyId, umbrellaId])
+  @@map("contractor_links")
+}
+
+model Timesheet {
+  id               String          @id @default(uuid())
+  contractorLinkId String
+  contractorId     String
+  periodStart      DateTime
+  periodEnd        DateTime
+  status           TimesheetStatus @default(DRAFT)
+  currentVersion   Int             @default(1)
+  lockVersion      Int             @default(1)
+  lockedAt         DateTime?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  contractorLink ContractorLink     @relation(fields: [contractorLinkId], references: [id])
+  contractor     User               @relation(fields: [contractorId],     references: [id])
+  versions       TimesheetVersion[]
+  invoice        Invoice?
+
+  @@map("timesheets")
+}
+
+model TimesheetVersion {
+  id              String    @id @default(uuid())
+  timesheetId     String
+  version         Int
+  hoursMonday     Decimal   @default(0) @db.Decimal(4, 2)
+  hoursTuesday    Decimal   @default(0) @db.Decimal(4, 2)
+  hoursWednesday  Decimal   @default(0) @db.Decimal(4, 2)
+  hoursThursday   Decimal   @default(0) @db.Decimal(4, 2)
+  hoursFriday     Decimal   @default(0) @db.Decimal(4, 2)
+  hoursSaturday   Decimal   @default(0) @db.Decimal(4, 2)
+  hoursSunday     Decimal   @default(0) @db.Decimal(4, 2)
+  totalHours      Decimal   @db.Decimal(6, 2)
+  notes           String?
+  submittedAt     DateTime  @default(now())
+  approvedAt      DateTime?
+  rejectedAt      DateTime?
+  rejectionReason String?
+  approvedById    String?
+  createdAt       DateTime  @default(now())
+
+  timesheet Timesheet @relation(fields: [timesheetId], references: [id])
+
+  @@unique([timesheetId, version])
+  @@map("timesheet_versions")
+}
+
+model Invoice {
+  id               String        @id @default(uuid())
+  invoiceNumber    String        @unique
+  timesheetId      String        @unique
+  contractorLinkId String
+  agencyId         String
+  umbrellaId       String
+  grossAmount      Decimal       @db.Decimal(10, 2)
+  currency         String        @default("GBP")
+  status           InvoiceStatus @default(INVOICE_GENERATED)
+  isLocked         Boolean       @default(false)
+  lockedAt         DateTime?
+  dueDate          DateTime
+  approvedAt       DateTime?
+  approvedById     String?
+  paidAt           DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  timesheet      Timesheet      @relation(fields: [timesheetId],      references: [id])
+  contractorLink ContractorLink @relation(fields: [contractorLinkId], references: [id])
+  payments       Payment[]
+  payroll        Payroll?
+
+  @@map("invoices")
+}
+
+model Payment {
+  id                String             @id @default(uuid())
+  invoiceId         String?
+  paymentReference  String             @unique
+  amount            Decimal            @db.Decimal(10, 2)
+  currency          String             @default("GBP")
+  senderAccountRef  String?
+  matchStatus       PaymentMatchStatus @default(UNRECOGNISED)
+  matchedAt         DateTime?
+  exceptionRaised   Boolean            @default(false)
+  exceptionNote     String?
+  rawWebhookPayload Json?
+  receivedAt        DateTime           @default(now())
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  invoice Invoice? @relation(fields: [invoiceId], references: [id])
+
+  @@map("payments")
+}
+
+model Payroll {
+  id                   String        @id @default(uuid())
+  invoiceId            String        @unique
+  contractorId         String
+  umbrellaId           String
+  grossPay             Decimal       @db.Decimal(10, 2)
+  incomeTax            Decimal       @db.Decimal(10, 2)
+  employeeNI           Decimal       @db.Decimal(10, 2)
+  employerNI           Decimal       @db.Decimal(10, 2)
+  umbrellaFee          Decimal       @db.Decimal(10, 2)
+  pensionContribution  Decimal       @default(0) @db.Decimal(10, 2)
+  studentLoanRepayment Decimal       @default(0) @db.Decimal(10, 2)
+  netPay               Decimal       @db.Decimal(10, 2)
+  taxCode              String        @default("1257L")
+  currency             String        @default("GBP")
+  status               PayrollStatus @default(PAYROLL_PROCESSING)
+  taxYear              String
+  payPeriodStart       DateTime
+  payPeriodEnd         DateTime
+  disbursedAt          DateTime?
+  failureReason        String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  invoice       Invoice        @relation(fields: [invoiceId],  references: [id])
+  payslip       Payslip?
+  rtiSubmission RtiSubmission?
+
+  @@map("payrolls")
+}
+
+model Payslip {
+  id                   String   @id @default(uuid())
+  payrollId            String   @unique
+  contractorId         String
+  payslipNumber        String   @unique
+  generatedAt          DateTime @default(now())
+  periodStart          DateTime
+  periodEnd            DateTime
+  paymentDate          DateTime
+  grossPay             Decimal  @db.Decimal(10, 2)
+  incomeTax            Decimal  @db.Decimal(10, 2)
+  employeeNI           Decimal  @db.Decimal(10, 2)
+  employerNI           Decimal  @db.Decimal(10, 2)
+  umbrellaFee          Decimal  @db.Decimal(10, 2)
+  pensionContribution  Decimal  @default(0) @db.Decimal(10, 2)
+  studentLoanRepayment Decimal  @default(0) @db.Decimal(10, 2)
+  netPay               Decimal  @db.Decimal(10, 2)
+  taxCode              String
+  taxYear              String
+  currency             String   @default("GBP")
+  createdAt            DateTime @default(now())
+
+  payroll    Payroll @relation(fields: [payrollId],    references: [id])
+  contractor User    @relation(fields: [contractorId], references: [id])
+
+  @@map("payslips")
+}
+
+model RtiSubmission {
+  id           String              @id @default(uuid())
+  payrollId    String              @unique
+  umbrellaId   String
+  submissionRef String             @unique
+  taxYear      String
+  periodStart  DateTime
+  periodEnd    DateTime
+  status       RtiSubmissionStatus @default(PENDING)
+  payload      Json
+  submittedAt  DateTime?
+  acceptedAt   DateTime?
+  failureReason String?
+  retryCount   Int                 @default(0)
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  payroll Payroll @relation(fields: [payrollId], references: [id])
+
+  @@map("rti_submissions")
+}
+
+model Exception {
+  id             String          @id @default(uuid())
+  type           ExceptionType
+  status         ExceptionStatus @default(OPEN)
+  referenceId    String
+  referenceType  String
+  organisationId String?
+  assignedToId   String?
+  description    String
+  resolution     String?
+  overrideReason String?
+  resolvedAt     DateTime?
+  resolvedById   String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  assignedTo User? @relation("ExceptionAssignee", fields: [assignedToId], references: [id])
+
+  @@map("exceptions")
+}
+
+model Notification {
+  id         String             @id @default(uuid())
+  userId     String
+  eventType  String
+  title      String
+  body       String
+  status     NotificationStatus @default(PENDING)
+  sentAt     DateTime?
+  readAt     DateTime?
+  metadata   Json?
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
+}
+
+model AuditLog {
+  id             String           @id @default(uuid())
+  timestamp      DateTime         @default(now())
+  actorId        String?
+  actorRole      UserRole?
+  organisationId String?
+  eventType      String
+  workRecordId   String?
+  beforeState    WorkRecordState?
+  afterState     WorkRecordState?
+  metadata       Json?
+
+  actor User? @relation(fields: [actorId], references: [id])
+
+  @@map("audit_logs")
+}
