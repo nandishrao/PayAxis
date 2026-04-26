@@ -1,0 +1,608 @@
+{
+  "info": {
+    "name": "Agentic Umbrella Platform",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl",           "value": "http://localhost:5000/api" },
+    { "key": "token",             "value": "" },
+    { "key": "platformAdminToken","value": "" },
+    { "key": "agencyAdminToken",  "value": "" },
+    { "key": "umbrellaAdminToken","value": "" },
+    { "key": "contractorToken",   "value": "" },
+    { "key": "userId",            "value": "" },
+    { "key": "orgId",             "value": "" },
+    { "key": "timesheetId",       "value": "" },
+    { "key": "invoiceId",         "value": "" },
+    { "key": "payrollId",         "value": "" },
+    { "key": "payslipId",         "value": "" },
+    { "key": "exceptionId",       "value": "" },
+    { "key": "contractorLinkId",  "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health",
+            "description": "No auth required. Returns database connection status."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register — Platform Admin",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Super\",\n  \"lastName\": \"Admin\",\n  \"email\": \"admin@umbrella.com\",\n  \"password\": \"Admin1234!\"\n}"
+            },
+            "description": "Register the first user. Then manually set their role to PLATFORM_ADMIN via Prisma Studio or a direct DB query:\nUPDATE memberships SET role = 'PLATFORM_ADMIN' WHERE user_id = '<id>';\n\nNote: registration alone doesn't assign a role. A PLATFORM_ADMIN must add members to orgs."
+          }
+        },
+        {
+          "name": "Register — Agency Admin",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Alice\",\n  \"lastName\": \"Agency\",\n  \"email\": \"alice@agency.com\",\n  \"password\": \"Agency1234!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Register — Umbrella Admin",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Uma\",\n  \"lastName\": \"Umbrella\",\n  \"email\": \"uma@umbrella.com\",\n  \"password\": \"Umbrella1234!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Register — Contractor",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Charlie\",\n  \"lastName\": \"Contractor\",\n  \"email\": \"charlie@contractor.com\",\n  \"password\": \"Contractor1234!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Register — Payroll Operator",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Priya\",\n  \"lastName\": \"Payroll\",\n  \"email\": \"priya@umbrella.com\",\n  \"password\": \"Payroll1234!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login — Platform Admin",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["pm.collectionVariables.set('platformAdminToken', pm.response.json().data.token);", "pm.collectionVariables.set('token', pm.response.json().data.token);"] }
+          }],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@umbrella.com\",\n  \"password\": \"Admin1234!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login — Agency Admin",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["pm.collectionVariables.set('agencyAdminToken', pm.response.json().data.token);", "pm.collectionVariables.set('token', pm.response.json().data.token);"] }
+          }],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alice@agency.com\",\n  \"password\": \"Agency1234!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login — Umbrella Admin",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["pm.collectionVariables.set('umbrellaAdminToken', pm.response.json().data.token);", "pm.collectionVariables.set('token', pm.response.json().data.token);"] }
+          }],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"uma@umbrella.com\",\n  \"password\": \"Umbrella1234!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login — Contractor",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["pm.collectionVariables.set('contractorToken', pm.response.json().data.token);", "pm.collectionVariables.set('token', pm.response.json().data.token);"] }
+          }],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"charlie@contractor.com\",\n  \"password\": \"Contractor1234!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get me (whoami)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/auth/me",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "description": "Returns the authenticated user with all memberships and contractor links."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Organisations",
+      "item": [
+        {
+          "name": "Create Agency org",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["pm.collectionVariables.set('orgId', pm.response.json().data.organisation.id);"] }
+          }],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/organisations",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{platformAdminToken}}" },
+              { "key": "Content-Type",   "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme Recruitment Ltd\",\n  \"type\": \"AGENCY\"\n}"
+            },
+            "description": "PLATFORM_ADMIN only. Type must be AGENCY or UMBRELLA."
+          }
+        },
+        {
+          "name": "Create Umbrella org",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/organisations",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{platformAdminToken}}" },
+              { "key": "Content-Type",   "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"BlueSky Umbrella Ltd\",\n  \"type\": \"UMBRELLA\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get organisation by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/organisations/{{orgId}}",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "description": "Must be a member of the org. Returns members list."
+          }
+        },
+        {
+          "name": "Add member to org",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/organisations/{{orgId}}/members",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{agencyAdminToken}}" },
+              { "key": "Content-Type",   "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"<paste-user-uuid>\",\n  \"role\": \"CONTRACTOR\"\n}"
+            },
+            "description": "Roles for AGENCY orgs: AGENCY_ADMIN, AGENCY_CONSULTANT, CONTRACTOR\nRoles for UMBRELLA orgs: UMBRELLA_ADMIN, PAYROLL_OPERATOR\nMismatched role/org type returns 422."
+          }
+        },
+        {
+          "name": "Link contractor to agency + umbrella",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["pm.collectionVariables.set('contractorLinkId', pm.response.json().data.link.id);"] }
+          }],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/organisations/contractors/link",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{agencyAdminToken}}" },
+              { "key": "Content-Type",   "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contractorId\": \"<contractor-user-uuid>\",\n  \"agencyId\": \"<agency-org-uuid>\",\n  \"umbrellaId\": \"<umbrella-org-uuid>\",\n  \"agreedRatePerHour\": 45.00,\n  \"currency\": \"GBP\"\n}"
+            },
+            "description": "Contractor must already be a CONTRACTOR member of the agency. This creates the ContractorLink which is required before any timesheet can be submitted."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Timesheets",
+      "item": [
+        {
+          "name": "Submit timesheet (Contractor)",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["pm.collectionVariables.set('timesheetId', pm.response.json().data.timesheet.id);"] }
+          }],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/timesheets",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{contractorToken}}" },
+              { "key": "Content-Type",   "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contractorLinkId\": \"{{contractorLinkId}}\",\n  \"periodStart\": \"2024-01-01T00:00:00.000Z\",\n  \"periodEnd\": \"2024-01-07T23:59:59.000Z\",\n  \"hours\": {\n    \"hoursMonday\": 8,\n    \"hoursTuesday\": 8,\n    \"hoursWednesday\": 8,\n    \"hoursThursday\": 8,\n    \"hoursFriday\": 8,\n    \"hoursSaturday\": 0,\n    \"hoursSunday\": 0\n  },\n  \"notes\": \"Regular working week\"\n}"
+            },
+            "description": "CONTRACTOR only. contractorLinkId must belong to the authenticated contractor. Total hours must be > 0 and <= 168."
+          }
+        },
+        {
+          "name": "Get all timesheets",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/timesheets?status=WORK_SUBMITTED",
+              "host": ["{{baseUrl}}"],
+              "path": ["timesheets"],
+              "query": [
+                { "key": "status", "value": "WORK_SUBMITTED", "description": "Optional: DRAFT | WORK_SUBMITTED | WORK_APPROVED | WORK_REJECTED" },
+                { "key": "contractorLinkId", "value": "", "disabled": true }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "description": "Contractors see only their own. Agency users see timesheets for their agency."
+          }
+        },
+        {
+          "name": "Get timesheet by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/timesheets/{{timesheetId}}",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Approve timesheet (Agency)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/timesheets/{{timesheetId}}/approve",
+            "header": [{ "key": "Authorization", "value": "Bearer {{agencyAdminToken}}" }],
+            "description": "AGENCY_ADMIN or AGENCY_CONSULTANT only. Timesheet must be WORK_SUBMITTED. On success, auto-triggers invoice generation. Uses optimistic locking — concurrent approvals return 409."
+          }
+        },
+        {
+          "name": "Reject timesheet (Agency)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/timesheets/{{timesheetId}}/reject",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{agencyAdminToken}}" },
+              { "key": "Content-Type",   "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rejectionReason\": \"Hours on Wednesday appear incorrect. Please recheck and resubmit.\"\n}"
+            },
+            "description": "rejectionReason is mandatory — empty string returns 422."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invoices",
+      "item": [
+        {
+          "name": "Get all invoices",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/invoices?status=INVOICE_GENERATED",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices"],
+              "query": [
+                { "key": "status", "value": "INVOICE_GENERATED", "description": "INVOICE_GENERATED | INVOICE_APPROVED | PAYMENT_PENDING | PAYMENT_RECEIVED" }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{agencyAdminToken}}" }],
+            "description": "Auto-generated when timesheet is approved. Agency sees their invoices, umbrella sees theirs."
+          }
+        },
+        {
+          "name": "Get invoice by ID",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["pm.collectionVariables.set('invoiceId', pm.response.json().data.invoice.id);"] }
+          }],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/invoices/{{invoiceId}}",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Approve invoice (Agency)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/invoices/{{invoiceId}}/approve",
+            "header": [{ "key": "Authorization", "value": "Bearer {{agencyAdminToken}}" }],
+            "description": "AGENCY_ADMIN only. Must be INVOICE_GENERATED. Locks invoice — immutable after this point."
+          }
+        },
+        {
+          "name": "Mark payment pending (Agency)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/invoices/{{invoiceId}}/payment-pending",
+            "header": [{ "key": "Authorization", "value": "Bearer {{agencyAdminToken}}" }],
+            "description": "Invoice must be INVOICE_APPROVED. Agency confirms they have initiated the bank transfer."
+          }
+        },
+        {
+          "name": "Reconcile payment — webhook (System)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/invoices/{{invoiceId}}/reconcile",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{platformAdminToken}}" },
+              { "key": "Content-Type",   "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentReference\": \"PAY-REF-123456\",\n  \"amount\": 1800.00,\n  \"currency\": \"GBP\",\n  \"senderAccountRef\": \"AGENCY-BANK-001\"\n}"
+            },
+            "description": "Simulates the banking webhook. Amount must exactly match invoice grossAmount. If mismatched → exception raised and workflow blocked. On success → status becomes PAYMENT_RECEIVED and payroll is unlocked."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payroll",
+      "item": [
+        {
+          "name": "Run payroll (Umbrella)",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["pm.collectionVariables.set('payrollId', pm.response.json().data.payroll.id);", "pm.collectionVariables.set('payslipId', pm.response.json().data.payslip.id);"] }
+          }],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/payroll/run/{{invoiceId}}",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{umbrellaAdminToken}}" },
+              { "key": "Content-Type",   "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"taxCode\": \"1257L\",\n  \"umbrellaFee\": 30,\n  \"hasPension\": false,\n  \"hasStudentLoan\": false,\n  \"studentLoanPlan\": 1\n}"
+            },
+            "description": "PAYROLL_OPERATOR or UMBRELLA_ADMIN only.\nHard guard: invoice must be PAYMENT_RECEIVED — any other status returns 409 and writes an audit log entry explaining why it was blocked.\nOn success: creates Payroll + Payslip records, advances state to PAYROLL_COMPLETED."
+          }
+        },
+        {
+          "name": "Get payroll by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/payroll/{{payrollId}}",
+            "header": [{ "key": "Authorization", "value": "Bearer {{umbrellaAdminToken}}" }]
+          }
+        },
+        {
+          "name": "Get my payslips (Contractor)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/payroll/payslips/me",
+            "header": [{ "key": "Authorization", "value": "Bearer {{contractorToken}}" }],
+            "description": "CONTRACTOR only. Returns all payslips for the authenticated contractor."
+          }
+        },
+        {
+          "name": "Get payslip by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/payroll/payslips/{{payslipId}}",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "description": "Contractor can only view their own payslips. Umbrella members can view any."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Compliance",
+      "item": [
+        {
+          "name": "Submit RTI to HMRC",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/compliance/rti/{{payrollId}}",
+            "header": [{ "key": "Authorization", "value": "Bearer {{umbrellaAdminToken}}" }],
+            "description": "UMBRELLA_ADMIN or PAYROLL_OPERATOR only. Payroll must be PAYROLL_COMPLETED. Runs compliance pre-flight checks before submission. In production this fires the HMRC RTI API — currently auto-accepts."
+          }
+        },
+        {
+          "name": "Get RTI submission",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/compliance/rti/<rti-submission-id>",
+            "header": [{ "key": "Authorization", "value": "Bearer {{umbrellaAdminToken}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Exceptions",
+      "item": [
+        {
+          "name": "Get all exceptions",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/exceptions?status=OPEN",
+              "host": ["{{baseUrl}}"],
+              "path": ["exceptions"],
+              "query": [
+                { "key": "status", "value": "OPEN", "description": "OPEN | IN_REVIEW | RESOLVED | ESCALATED" },
+                { "key": "type",   "value": "", "disabled": true, "description": "PAYMENT_MISMATCH | INVALID_TAX_CODE | MISSING_NI_NUMBER | PAYROLL_OUT_OF_RANGE | HMRC_SUBMISSION_FAILED | UNRECOGNISED_PAYMENT | MANUAL_OVERRIDE" }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{umbrellaAdminToken}}" }]
+          }
+        },
+        {
+          "name": "Get exception by ID",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["pm.collectionVariables.set('exceptionId', pm.response.json().data.exception.id);"] }
+          }],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/exceptions/{{exceptionId}}",
+            "header": [{ "key": "Authorization", "value": "Bearer {{umbrellaAdminToken}}" }]
+          }
+        },
+        {
+          "name": "Resolve exception",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/exceptions/{{exceptionId}}/resolve",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{umbrellaAdminToken}}" },
+              { "key": "Content-Type",   "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resolution\": \"Payment reference corrected and matched to invoice INV-XYZ.\",\n  \"overrideReason\": \"Manual match approved by senior compliance officer.\"\n}"
+            },
+            "description": "overrideReason is optional but if included must be non-empty. It is stored permanently in the audit log and cannot be deleted."
+          }
+        },
+        {
+          "name": "Resolve exception (no override)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/exceptions/{{exceptionId}}/resolve",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{umbrellaAdminToken}}" },
+              { "key": "Content-Type",   "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resolution\": \"Tax code updated in contractor profile. Pre-flight now passes.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Assign exception",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/exceptions/{{exceptionId}}/assign",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{umbrellaAdminToken}}" },
+              { "key": "Content-Type",   "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assignedToId\": \"<user-uuid-to-assign>\"\n}"
+            },
+            "description": "Sets exception status to IN_REVIEW and assigns to a specific user."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get my notifications",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/notifications/me?unreadOnly=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "me"],
+              "query": [{ "key": "unreadOnly", "value": "false", "description": "true = only unread" }]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Mark notification as read",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/notifications/<notification-id>/read",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audit Logs",
+      "item": [
+        {
+          "name": "Get audit logs",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/audit-logs?eventType=TIMESHEET_APPROVED&from=2024-01-01T00:00:00Z",
+              "host": ["{{baseUrl}}"],
+              "path": ["audit-logs"],
+              "query": [
+                { "key": "eventType",      "value": "TIMESHEET_APPROVED", "description": "Filter by event type string" },
+                { "key": "actorId",        "value": "", "disabled": true  },
+                { "key": "workRecordId",   "value": "", "disabled": true  },
+                { "key": "organisationId", "value": "", "disabled": true  },
+                { "key": "from",           "value": "2024-01-01T00:00:00Z", "description": "ISO datetime" },
+                { "key": "to",             "value": "", "disabled": true  }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{platformAdminToken}}" }],
+            "description": "PLATFORM_ADMIN only. Returns up to 200 entries, newest first. Write-only model — no update or delete endpoints exist."
+          }
+        }
+      ]
+    }
+  ]
+}
