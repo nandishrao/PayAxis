@@ -5,7 +5,7 @@ import DataTable from '@/components/shared/DataTable'
 import StatusBadge from '@/components/shared/StatusBadge'
 import LoadingSpinner from '@/components/shared/LoadingSpinner'
 import ErrorMessage from '@/components/shared/ErrorMessage'
-import { useTimesheets } from '@/hooks/useTimesheets'
+import { useTimesheets } from '@/hooks/useTimeSheets'
 import { TIMESHEET_STATUS } from '@/lib/constants'
 import { formatDateRange } from '@/utils/formatter'
 

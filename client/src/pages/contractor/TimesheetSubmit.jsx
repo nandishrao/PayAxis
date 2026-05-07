@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import AppShell from '@/components/shared/AppShell'
 import PageHeader from '@/components/shared/PageHeader'
 import ErrorMessage from '@/components/shared/ErrorMessage'
-import { useSubmitTimesheet } from '@/hooks/useTimesheets'
+import { useSubmitTimesheet } from '@/hooks/useTimeSheets'
 import { useAuthStore } from '@/store/authStore'
 
 const hoursField = z.coerce.number().min(0).max(24)
