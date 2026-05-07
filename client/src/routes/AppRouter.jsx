@@ -10,7 +10,7 @@ import Unauthorized from '@/pages/auth/Unauthorized'
 
 // Contractor
 import ContractorDashboard from '@/pages/contractor/ContractorDashboard'
-import TimesheetList from '@/pages/contractor/TimesheetList'
+import TimesheetList from '@/pages/contractor/TimeSheetList'
 import TimesheetSubmit from '@/pages/contractor/TimesheetSubmit'
 import PayslipList from '@/pages/contractor/PayslipList'
 import PayslipDetail from '@/pages/contractor/PayslipDetail'
