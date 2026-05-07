@@ -4,7 +4,7 @@ import PageHeader from '@/components/shared/PageHeader'
 import StatusBadge from '@/components/shared/StatusBadge'
 import LoadingSpinner from '@/components/shared/LoadingSpinner'
 import ErrorMessage from '@/components/shared/ErrorMessage'
-import { useTimesheets, useApproveTimesheet, useRejectTimesheet } from '@/hooks/useTimesheets'
+import { useTimesheets, useApproveTimesheet, useRejectTimesheet } from '@/hooks/useTimeSheets'
 import { TIMESHEET_STATUS } from '@/lib/constants'
 import { formatDateRange, formatDate, formatHours } from '@/utils/formatter'
 
