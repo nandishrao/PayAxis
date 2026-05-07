@@ -1,4 +1,4 @@
-import { getAuditLogs, getAuditLogsByEntity } from '../services/auditLogService.js'
+import { getAuditLogs, getAuditLogsByEntity } from '../services/auditlogService.js'
 import { sendSuccess } from '../utils/response.js'
 import { asyncHandler } from '../middlewares/errorHandler.js'
 
