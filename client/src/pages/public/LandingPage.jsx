@@ -67,7 +67,7 @@ const LandingPage = () => {
               Explore Live Demo
               <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <a href="https://github.com" target="_blank" rel="noreferrer" className="w-full sm:w-auto px-8 py-4 rounded-xl text-lg font-semibold border hover:bg-muted transition-colors flex items-center justify-center gap-2">
+            <a href="https://github.com/nandishrao/PayAxis" target="_blank" rel="noreferrer" className="w-full sm:w-auto px-8 py-4 rounded-xl text-lg font-semibold border hover:bg-muted transition-colors flex items-center justify-center gap-2">
               View Source
             </a>
           </div>
