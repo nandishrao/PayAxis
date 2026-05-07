@@ -13,7 +13,7 @@ import payrollRoutes      from './routes/payrollRoutes.js'
 import complianceRoutes   from './routes/complianceRoutes.js'
 import exceptionRoutes    from './routes/exceptionRoutes.js'
 import notificationRoutes from './routes/notificationRoutes.js'
-import auditLogRoutes     from './routes/auditLogRoutes.js'
+import auditLogRoutes     from './routes/auditlogRoutes.js'
 
 const app = express()
 
