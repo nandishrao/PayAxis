@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { getLogs, getLogsByEntity } from '../controllers/auditLogController.js'
+import { getLogs, getLogsByEntity } from '../controllers/auditlogController.js'
 import { authenticate } from '../middlewares/authenticate.js'
 import { requireRoles } from '../middlewares/rbac.js'
 
