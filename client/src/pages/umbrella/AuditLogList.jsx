@@ -3,7 +3,7 @@ import AppShell from '@/components/shared/AppShell'
 import PageHeader from '@/components/shared/PageHeader'
 import LoadingSpinner from '@/components/shared/LoadingSpinner'
 import ErrorMessage from '@/components/shared/ErrorMessage'
-import { useAuditLogs } from '@/hooks/useAuditLogs'
+import { useAuditLogs } from '@/hooks/useAuditlogs'
 import { formatDateTime } from '@/utils/formatter'
 
 const STATE_COLORS = {
