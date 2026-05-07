@@ -24,10 +24,10 @@ export const useAuthStore = create((set, get) => ({
     return role ? (ROLE_PORTALS[role] ?? '/login') : '/login'
   },
 
-  // Called on login — sets both user and token atomically
+  // Called on login to sets both user and token atomically
   setAuth: (user, token) => set({ user, token }),
 
-  // Called after /me fetch — replaces user object with full profile
+  // Called after /me fetch it replaces user object with full profile
   setUser: (user) => set((state) => ({ ...state, user: { ...user } })),
 
   logout: () => set({ user: null, token: null }),
