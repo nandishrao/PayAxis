@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { auditLogsApi } from '@/api/auditLogs.api'
+import { auditLogsApi } from '@/api/auditlogs.api'
 
 const normalize = (result, key) =>
   Array.isArray(result) ? { [key]: result, count: result.length } : result
